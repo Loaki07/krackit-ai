@@ -1,0 +1,34 @@
+{
+  "name": "krackit-ai",
+  "version": "1.0.0",
+  "description": "Coding Interview Prep AI Assistant",
+  "main": "src",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "keywords": [
+    "ChatGpt",
+    "Coding AI",
+    "Assistant",
+    "Pinecode",
+    "Langchain",
+    "Embeddings"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@pinecone-database/pinecone": "^0.0.10",
+    "chromadb": "^1.3.1",
+    "cors": "^2.8.5",
+    "d3-dsv": "^3.0.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "langchain": "^0.0.45",
+    "morgan": "^1.10.0"
+  }
+}
