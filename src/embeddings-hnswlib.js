@@ -1,17 +1,15 @@
 import { HNSWLib } from "langchain/vectorstores";
 import { OpenAIEmbeddings } from "langchain/embeddings";
-import { loadQAStuffChain, loadQAMapReduceChain } from "langchain/chains";
+import { RetrievalQAChain } from "langchain/chains";
 import { CSVLoader } from "langchain/document_loaders";
 import { OpenAI } from "langchain/llms";
 
 
 const loadDataToHNSWLib = async () => {
     try {
-        const llmA = new OpenAI({});
-        const chainA = loadQAStuffChain(llmA);
 
         const loader = new CSVLoader(
-            "./assets/leetcode_sample.csv",
+            "./assets/leetcode_dataset.csv",
         );
 
         const docs = await loader.load();
@@ -23,21 +21,35 @@ const loadDataToHNSWLib = async () => {
         const directory = "./hnswlib-db";
         await vectorStore.save(directory);
 
+
+        console.log(`load success`);
+        return "load success";
+    } catch (error) {
+        console.error(`Error loading data to hnswlib: ${error}`);
+    }
+}
+
+const queryHNSWLibDb = async (question) => {
+
+    try {
+        const model = new OpenAI({ modelName: "gpt-3.5-turbo" });
+
+        const directory = "./hnswlib-db";
+
         // Load the vector store from the same directory
         const loadedVectorStore = await HNSWLib.load(
             directory,
             new OpenAIEmbeddings()
         );
 
-        const resA = await chainA.call({
-            input_documents: loadedVectorStore,
-            question: "Lists Question Asked by Amazon.",
-        });
-        console.log({ resA });
+        const chain = RetrievalQAChain.fromLLM(model, loadedVectorStore.asRetriever());
+        const res = await chain.call({ query: question });
+        console.log({ res });
 
-        return resA;
+        return res;
+
     } catch (error) {
-        console.error(`Error loading data to hnswlib: ${error}`);
+        console.error(error);
     }
 }
 
@@ -54,8 +66,8 @@ const makeEmbeddedRequestHNSWLib = async (texts) => {
             const vectorStore = await HNSWLib.fromDocuments(texts, new OpenAIEmbeddings());
             return vectorStore;
         } catch (error) {
-            console.log(error.response.status);
-            if (error.response.status === 429) { // rate limit error
+            console.log(error);
+            if (error?.response?.status === 429) { // rate limit error
                 attempt += 1;
                 await backoffHNSWLib(attempt);
             } else {
@@ -65,4 +77,4 @@ const makeEmbeddedRequestHNSWLib = async (texts) => {
     }
 }
 
-export default loadDataToHNSWLib;
+export { loadDataToHNSWLib, queryHNSWLibDb };

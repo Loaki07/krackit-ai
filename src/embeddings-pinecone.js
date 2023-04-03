@@ -45,6 +45,11 @@ const addDocuments = async (documents) => {
 }
 
 const addVectors = async (vectors, documents) => {
+    const pinecone = await initPineCone();
+
+    //retrieve API operations for index created in pinecone dashboard
+    const index = pinecone.Index("krackit-ai");
+
     //create the pinecone upsert object per vector
     const upsertRequest = {
         vectors: vectors.map((values, idx) => ({
@@ -114,7 +119,8 @@ const loadData = async () => {
         console.log(response);
         return response;
     } catch (error) {
-        console.error(`Data Loading error ${error}`);
+        console.error(`Data Loading error`);
+        console.error(error);
     }
 }
 
@@ -134,7 +140,7 @@ const makeEmbeddedRequest = async (texts) => {
             return embedded;
         } catch (error) {
             console.log(error.response.status);
-            if (error.response.status === 429) { // rate limit error
+            if (error?.response?.status === 429) { // rate limit error
                 attempt += 1;
                 await backoff(attempt);
             } else {

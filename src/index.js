@@ -2,7 +2,7 @@ import express, { response } from 'express'
 import dotenv from 'dotenv'
 import morgan from 'morgan'
 import cors from 'cors'
-import loadDataToHNSWLib from './embeddings-hnswlib.js'
+import { loadDataToHNSWLib, queryHNSWLibDb } from './embeddings-hnswlib.js'
 import loadDataToChroma from './embeddings-chroma.js'
 import loadData from './embeddings-pinecone.js'
 dotenv.config()
@@ -18,10 +18,18 @@ if (process.env.NODE_ENV === 'development') {
 
 
 app.get('/', async (req, res) => {
-    let response = await loadData();
+    // let response = await loadDataToHNSWLib();
     res.status(200).send({
         success: true,
         message: 'krackit-ai api backend!',
+    });
+})
+
+app.get('/ask/:query', async (req, res) => {
+    let response = await queryHNSWLibDb(req.params.query);
+    res.status(200).send({
+        success: true,
+        message: 'AI Response',
         data: response,
     });
 })

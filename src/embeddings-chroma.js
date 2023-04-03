@@ -27,7 +27,6 @@ const loadDataToChroma = async () => {
         return resA;
     } catch (error) {
         console.error(`Error loading data to chroma: ${error}`);
-
     }
 }
 
